@@ -1,5 +1,5 @@
 # Usa una imagen de Docker con Node.js y Puppeteer preinstalado
-FROM zenika/alpine-chrome
+FROM zenika/alpine-chrome-node
 
 # Establece el directorio de trabajo
 WORKDIR /app
