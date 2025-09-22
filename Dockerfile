@@ -11,6 +11,7 @@ COPY . .
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
+# Aquí está el cambio
 RUN apt-get update && \
     apt-get install -y chromium libnss3 libxss1 libasound2 libgbm-dev libxshmfence-dev && \
     rm -rf /var/lib/apt/lists/*
