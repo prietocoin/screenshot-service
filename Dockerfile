@@ -1,20 +1,14 @@
-FROM node:20-bullseye-slim
+# Usa una imagen de Docker con Node.js y Puppeteer preinstalado
+FROM zenika/alpine-chrome
 
+# Establece el directorio de trabajo
 WORKDIR /app
 
-COPY package*.json ./
-
-RUN npm install --omit=dev
+# Copia los archivos de tu proyecto
+COPY package.json ./
+RUN npm install
 
 COPY . .
-
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
-
-# Aquí está el cambio
-RUN apt-get update && \
-    apt-get install -y chromium libnss3 libxss1 libasound2 libgbm-dev libxshmfence-dev && \
-    rm -rf /var/lib/apt/lists/*
 
 EXPOSE 3000
 
