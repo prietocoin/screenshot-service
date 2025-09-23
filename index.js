@@ -7,10 +7,10 @@ const port = 3000;
 app.use(express.json());
 
 app.post('/screenshot', async (req, res) => {
-    const { url, selector } = req.body;
+    const { url, x, y, width, height } = req.body;
 
-    if (!url || !selector) {
-        return res.status(400).json({ error: 'URL y selector son obligatorios.' });
+    if (!url || x === undefined || y === undefined || width === undefined || height === undefined) {
+        return res.status(400).json({ error: 'URL y coordenadas son obligatorios.' });
     }
 
     let browser;
@@ -27,19 +27,13 @@ app.post('/screenshot', async (req, res) => {
             ]
         });
         const page = await browser.newPage();
-        
+
         await page.setViewport({ width: 1920, height: 1080 });
-        
         await page.goto(url, { waitUntil: 'networkidle0' });
 
-        await page.waitForSelector(selector);
-
-        const element = await page.$(selector);
-        if (!element) {
-            return res.status(404).json({ error: 'El selector especificado no fue encontrado.' });
-        }
-
-        const screenshotBuffer = await element.screenshot();
+        const screenshotBuffer = await page.screenshot({
+            clip: { x: Number(x), y: Number(y), width: Number(width), height: Number(height) }
+        });
 
         res.type('image/png').send(screenshotBuffer);
     } catch (error) {
