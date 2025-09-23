@@ -30,6 +30,9 @@ app.post('/screenshot', async (req, res) => {
 
         await page.setViewport({ width: 1920, height: 1080 });
         await page.goto(url, { waitUntil: 'networkidle0' });
+        
+        // ¡Esta es la nueva línea!
+        await page.waitForSelector('body');
 
         const screenshotBuffer = await page.screenshot({
             clip: { x: Number(x), y: Number(y), width: Number(width), height: Number(height) }
