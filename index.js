@@ -35,9 +35,9 @@ app.post('/screenshot', async (req, res) => {
 
         // Espera de forma más inteligente a que un elemento esté disponible.
         if (customSelector) {
-            await page.waitForSelector(customSelector, { timeout: 15000 }); // Aumenta el timeout a 15 segundos
+            await page.waitForSelector(customSelector, { timeout: 35000 }); // Aumenta el timeout a 15 segundos
         } else {
-            await page.waitForSelector('body', { timeout: 15000 });
+            await page.waitForSelector('body', { timeout: 35000 });
         }
 
         // Espera adicional si el contenido es muy dinámico
