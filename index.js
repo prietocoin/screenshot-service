@@ -7,59 +7,51 @@ const port = 3000;
 app.use(express.json());
 
 app.post('/screenshot', async (req, res) => {
-    const { url, x, y, width, height, customSelector, waitFor, viewportWidth, viewportHeight } = req.body;
+    const { url, x, y, width, height } = req.body;
 
-    // Validación más robusta de los datos de entrada
+    // 1. Validación de los datos de entrada
     if (!url || x === undefined || y === undefined || width === undefined || height === undefined) {
         return res.status(400).json({ error: 'URL y coordenadas de captura (x, y, width, height) son obligatorios.' });
     }
 
     let browser;
     try {
+        // 2. Configuración de Puppeteer
         browser = await puppeteer.launch({
-            headless: 'new', // Usa el nuevo modo 'new' que es más rápido y estable
+            headless: 'new',
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
                 '--disable-gpu',
-                '--disable-dev-shm-usage'
+                '--disable-dev-shm-usage',
+                '--no-zygote',
+                '--single-process'
             ]
         });
         const page = await browser.newPage();
         
-        // Define el tamaño de la ventana (viewport)
-        await page.setViewport({ width: viewportWidth || 1920, height: viewportHeight || 1080 });
+        await page.setViewport({ width: 1920, height: 1080 });
 
-        // Navega a la URL y espera a que la red se quede inactiva
-        await page.goto(url, { waitUntil: 'networkidle2' });
+        // 3. Navegación y espera robusta
+        // Espera a que la página se cargue y que la red se mantenga inactiva por un tiempo.
+        await page.goto(url, { waitUntil: 'networkidle0' });
+        
+        // Espera explícita para asegurar el renderizado
+        // Se espera un tiempo prudente para que los elementos dinámicos (gráficos, tablas) se carguen
+        await page.waitForTimeout(5000); 
 
-        // Espera de forma más inteligente a que un elemento esté disponible.
-        if (customSelector) {
-            await page.waitForSelector(customSelector, { timeout: 35000 }); // Aumenta el timeout a 15 segundos
-        } else {
-            await page.waitForSelector('body', { timeout: 35000 });
-        }
-
-        // Espera adicional si el contenido es muy dinámico
-        if (waitFor) {
-            await page.waitForTimeout(waitFor);
-        }
-
-        // Realiza la captura de pantalla
+        // 4. Captura de pantalla
         const screenshotBuffer = await page.screenshot({
             clip: { x: Number(x), y: Number(y), width: Number(width), height: Number(height) }
         });
 
+        // 5. Envío de la respuesta
         res.type('image/png').send(screenshotBuffer);
     } catch (error) {
         console.error('Error al tomar la captura de pantalla:', error);
-        // Si hay un timeout de Puppeteer, devuelve un error 408
-        if (error.name === 'TimeoutError') {
-             res.status(408).json({ error: 'La página tardó demasiado en cargar. Inténtalo de nuevo.' });
-        } else {
-             res.status(500).json({ error: 'Error interno del servidor al procesar la solicitud.', details: error.message });
-        }
+        res.status(500).json({ error: 'Error interno del servidor al procesar la solicitud.', details: error.message });
     } finally {
+        // 6. Cierre del navegador
         if (browser) {
             await browser.close();
         }
