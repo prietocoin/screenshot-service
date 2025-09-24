@@ -31,10 +31,11 @@ app.post('/screenshot', async (req, res) => {
         await page.setViewport({ width: 1920, height: 1080 });
 
         // Espera de forma robusta hasta que la red esté casi inactiva
-        await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 }); // Aumenta el tiempo de espera a 30 segundos
+        await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
         
-        // Aumenta el tiempo de espera explícito para asegurar que los elementos dinámicos se rendericen
-        await page.waitForTimeout(7000); // 7 segundos de espera extra
+        // **CORRECCIÓN:** Utiliza la función sleep de Node.js en lugar de la función de Puppeteer obsoleta.
+        // Esto añade una pausa de 7 segundos para que los elementos dinámicos se rendericen.
+        await new Promise(r => setTimeout(r, 7000));
 
         const screenshotBuffer = await page.screenshot({
             clip: { x: Number(x), y: Number(y), width: Number(width), height: Number(height) }
@@ -44,7 +45,6 @@ app.post('/screenshot', async (req, res) => {
     } catch (error) {
         console.error('Error al tomar la captura de pantalla:', error);
         
-        // Captura errores específicos para un mejor diagnóstico
         if (error.name === 'TimeoutError') {
              res.status(408).json({ error: 'La página tardó demasiado en cargar. Inténtalo de nuevo.' });
         } else {
