@@ -32,7 +32,7 @@ app.post('/screenshot', async (req, res) => {
 
         // 3. Navegación y espera robusta
         // Espera a que la red esté casi inactiva, con un timeout amplio de 30 segundos.
-        await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+        await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
         
         // **ESTRATEGIA CLAVE**: Espera hasta que el elemento de la tabla esté visible.
         // Esto asegura que el contenido principal haya sido inyectado por JavaScript.
@@ -40,7 +40,7 @@ app.post('/screenshot', async (req, res) => {
         await page.waitForSelector('body table', { timeout: 30000 }); 
 
         // Pausa de seguridad de 2 segundos para el renderizado final (animaciones, estilos).
-        await new Promise(r => setTimeout(r, 2000));
+        await new Promise(r => setTimeout(r, 5000));
 
         // 4. Captura de pantalla
         const screenshotBuffer = await page.screenshot({
