@@ -27,7 +27,7 @@ app.post('/screenshot', async (req, res) => {
         });
         const page = await browser.newPage();
         
-        await page.setViewport({ width: 1920, height: 1080 });
+        await page.setViewport({ width: 2500, height: 2100 }); 
 
         // 2. Navegación y espera robusta
         // Aumenta el timeout de navegación total a 60 segundos
