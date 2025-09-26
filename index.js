@@ -37,7 +37,7 @@ app.post('/screenshot', async (req, res) => {
         // **ESTRATEGIA CLAVE**: Espera hasta que el elemento de la tabla esté visible.
         // Esto asegura que el contenido principal haya sido inyectado por JavaScript.
         // ¡Si conoces un selector más específico que 'body table', úsalo!
-        await page.waitForSelector('body table', { timeout: 15000 }); 
+        await page.waitForSelector('body table', { timeout: 30000 }); 
 
         // Pausa de seguridad de 2 segundos para el renderizado final (animaciones, estilos).
         await new Promise(r => setTimeout(r, 2000));
